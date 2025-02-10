@@ -17,6 +17,8 @@ package edu.cnm.deepdive.notes;
 
 import android.app.Application;
 import dagger.hilt.android.HiltAndroidApp;
+import edu.cnm.deepdive.notes.service.NotesDatabase;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
  * Initializes (in the {@link #onCreate()} method) application-level resources that cannot be
@@ -29,7 +31,12 @@ public class NotesApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    // TODO: 2025-02-10 Add any app-level initialization here.
+    NotesDatabase.setContext(this);
+    NotesDatabase.getInstance()
+        .getNoteDao()
+        .delete()
+        .subscribeOn(Schedulers.io())
+        .subscribe();
   }
 
 }
