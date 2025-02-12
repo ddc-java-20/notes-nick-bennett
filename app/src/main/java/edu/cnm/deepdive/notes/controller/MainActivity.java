@@ -3,6 +3,7 @@ package edu.cnm.deepdive.notes.controller;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import dagger.hilt.android.AndroidEntryPoint;
+import edu.cnm.deepdive.notes.R;
 import edu.cnm.deepdive.notes.databinding.ActivityMainBinding;
 
 @AndroidEntryPoint
@@ -15,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
+    setSupportActionBar(binding.toolbar);
   }
 
 }
