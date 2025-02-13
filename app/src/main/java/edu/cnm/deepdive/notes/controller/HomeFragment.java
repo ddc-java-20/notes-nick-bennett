@@ -9,16 +9,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
+import dagger.hilt.android.AndroidEntryPoint;
+import edu.cnm.deepdive.notes.NotesAdapter;
 import edu.cnm.deepdive.notes.R;
 import edu.cnm.deepdive.notes.databinding.FragmentHomeBinding;
 import edu.cnm.deepdive.notes.viewmodel.NoteViewModel;
+import javax.inject.Inject;
 import org.jetbrains.annotations.NotNull;
 
+@AndroidEntryPoint
 public class HomeFragment extends Fragment {
 
+  private final NotesAdapter adapter;
   private FragmentHomeBinding binding;
   private NoteViewModel viewModel;
-
+  
+  @Inject
+  HomeFragment(NotesAdapter adapter) {
+    this.adapter = adapter;  
+  }
+  
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
