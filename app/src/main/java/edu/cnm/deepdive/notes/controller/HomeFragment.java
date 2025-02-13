@@ -20,15 +20,9 @@ import org.jetbrains.annotations.NotNull;
 @AndroidEntryPoint
 public class HomeFragment extends Fragment {
 
-  private final NotesAdapter adapter;
   private FragmentHomeBinding binding;
   private NoteViewModel viewModel;
-  
-  @Inject
-  HomeFragment(NotesAdapter adapter) {
-    this.adapter = adapter;  
-  }
-  
+
   @Override
   public View onCreateView(
       @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,10 +39,12 @@ public class HomeFragment extends Fragment {
     viewModel
         .getNotes()
         .observe(lifecycleOwner, (notes) -> {
+          NotesAdapter adapter = new NotesAdapter(requireContext(), notes);
+          binding.notes.setAdapter(adapter);
           // TODO: 2025-02-13 If creating a new adapter each time the data changes, create one now;
           //  otherwise, we need to create one earlier, and it will exist by this time.
           // TODO: 2025-02-13 Pass notes to adapter.
-          // TODO: 2025-02-13 Notify adapter of change. 
+          // TODO: 2025-02-13 Notify adapter of change.
         });
   }
 }
