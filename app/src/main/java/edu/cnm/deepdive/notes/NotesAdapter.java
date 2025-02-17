@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import edu.cnm.deepdive.notes.databinding.ItemNoteBinding;
@@ -40,7 +39,7 @@ public class NotesAdapter extends Adapter<ViewHolder> {
 
   private static class Holder extends ViewHolder {
 
-    private ItemNoteBinding binding;
+    private final ItemNoteBinding binding;
 
     public Holder(@NonNull ItemNoteBinding binding) {
       super(binding.getRoot());
