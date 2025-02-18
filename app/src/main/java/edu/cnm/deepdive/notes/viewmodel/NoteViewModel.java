@@ -47,6 +47,7 @@ public class NoteViewModel extends ViewModel implements DefaultLifecycleObserver
 
   public void fetch(long noteId) {
     throwable.setValue(null);
+    // TODO: 2025-02-18 Consider this.note.setValue(null) 
     this.noteId.setValue(noteId);
   }
 
