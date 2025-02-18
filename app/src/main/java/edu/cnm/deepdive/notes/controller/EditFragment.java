@@ -27,6 +27,7 @@ public class EditFragment extends BottomSheetDialogFragment {
   private FragmentEditBinding binding;
   private NoteViewModel viewModel;
   private long noteId;
+  private Note note;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,7 +47,9 @@ public class EditFragment extends BottomSheetDialogFragment {
   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
       @Nullable Bundle savedInstanceState) {
     binding = FragmentEditBinding.inflate(inflater, container, false);
-    // TODO: 2025-02-18 Attach listeners to UI widgets. 
+    // TODO: 2025-02-18 Attach listeners to UI widgets.
+    binding.cancel.setOnClickListener((v) -> dismiss());
+    binding.save.setOnClickListener((v) -> save());
     return binding.getRoot();
   }
 
@@ -60,11 +63,12 @@ public class EditFragment extends BottomSheetDialogFragment {
           .getNote()
           .observe(getViewLifecycleOwner(), this::handleNote);
     } else {
-      // TODO: 2025-02-18 Configure UI for a new note, vs. editing an existing note. 
+      // TODO: 2025-02-18 Configure UI for a new note, vs. editing an existing note.
       binding.image.setVisibility(View.GONE);
+      note = new Note();
     }
   }
-  
+
   @Override
   public void onDestroyView() {
     binding = null;
@@ -72,6 +76,7 @@ public class EditFragment extends BottomSheetDialogFragment {
   }
 
   private void handleNote(Note note) {
+    this.note = note;
     binding.title.setText(note.getTitle());
     binding.content.setText(note.getContent());
     Uri imageUri = note.getImage();
@@ -81,6 +86,21 @@ public class EditFragment extends BottomSheetDialogFragment {
     } else {
       binding.image.setVisibility(View.GONE);
     }
+  }
+
+  /** @noinspection DataFlowIssue*/
+  private void save() {
+    note.setTitle(binding.title
+        .getText()
+        .toString()
+        .strip());
+    note.setContent(binding.content
+        .getText()
+        .toString()
+        .strip());
+    // TODO: 2025-02-18 Set/modify the createdOn/modifiedOn
+    viewModel.save(note);
+    dismiss();
   }
 
   @ColorInt
