@@ -1,8 +1,6 @@
 package edu.cnm.deepdive.notes.controller;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,10 +17,15 @@ public class ExplanationFragment extends DialogFragment {
         .setTitle(R.string.camera_permission_title)
         .setIcon(android.R.drawable.ic_dialog_info)
         .setMessage(R.string.camera_permission_explanation)
-        .setNeutralButton(android.R.string.ok, (dialog, which) -> {
-          // TODO Tell activity we're done.
-        })
+        .setNeutralButton(android.R.string.ok, (dialog, which) ->
+            ((OnDismissListener) requireActivity()).onDismiss())
         .create();
+  }
+
+  public interface OnDismissListener {
+
+    void onDismiss();
+
   }
 
 }
