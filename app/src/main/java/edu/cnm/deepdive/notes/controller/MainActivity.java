@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -40,6 +41,18 @@ public class MainActivity extends AppCompatActivity {
     appBarConfig = new AppBarConfiguration.Builder(R.id.home_fragment).build();
     navController = ((NavHostFragment) binding.navHostContainer.getFragment()).getNavController();
     NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig);
+  }
+
+  private void setupPermissions() {
+    if (shouldRequestCameraPermission()) {
+      if (shouldExplainCameraPermission()) {
+        navController.navigate(HomeFragmentDirections.openExplanationFragment());
+      } else {
+        // TODO: 2025-02-19 Invoke onDismiss callback directly.
+      }
+    } else {
+      // TODO: 2025-02-19 Store result, if appropriate.
+    }
   }
 
   private boolean shouldRequestCameraPermission() {
