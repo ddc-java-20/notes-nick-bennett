@@ -1,6 +1,8 @@
 package edu.cnm.deepdive.notes.controller;
 
+import android.Manifest.permission;
 import android.app.Dialog;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -10,11 +12,10 @@ import android.view.ViewGroup;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import dagger.hilt.android.AndroidEntryPoint;
-import edu.cnm.deepdive.notes.R;
 import edu.cnm.deepdive.notes.databinding.FragmentEditBinding;
 import edu.cnm.deepdive.notes.model.entity.Note;
 import edu.cnm.deepdive.notes.viewmodel.NoteViewModel;
@@ -50,6 +51,7 @@ public class EditFragment extends BottomSheetDialogFragment {
     // TODO: 2025-02-18 Attach listeners to UI widgets.
     binding.cancel.setOnClickListener((v) -> dismiss());
     binding.save.setOnClickListener((v) -> save());
+    setCaptureVisibility();
     return binding.getRoot();
   }
 
@@ -75,6 +77,15 @@ public class EditFragment extends BottomSheetDialogFragment {
     super.onDestroyView();
   }
 
+  private void setCaptureVisibility() {
+    if (ContextCompat.checkSelfPermission(requireContext(), permission.CAMERA) ==
+        PackageManager.PERMISSION_GRANTED) {
+      binding.capture.setVisibility(View.VISIBLE);
+    } else {
+      binding.capture.setVisibility(View.GONE);
+    }
+  }
+
   private void handleNote(Note note) {
     this.note = note;
     binding.title.setText(note.getTitle());
@@ -88,7 +99,9 @@ public class EditFragment extends BottomSheetDialogFragment {
     }
   }
 
-  /** @noinspection DataFlowIssue*/
+  /**
+   * @noinspection DataFlowIssue
+   */
   private void save() {
     note.setTitle(binding.title
         .getText()
