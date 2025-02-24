@@ -2,6 +2,7 @@ package edu.cnm.deepdive.notes.controller;
 
 import android.Manifest.permission;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -154,14 +155,15 @@ public class EditFragment extends BottomSheetDialogFragment {
   }
 
   private void capture() {
-    File captureDir = new File(requireContext().getFilesDir(), getString(R.string.capture_directory));
+    Context context = requireContext();
+    File captureDir = new File(context.getFilesDir(), getString(R.string.capture_directory));
     //noinspection ResultOfMethodCallIgnored
     captureDir.mkdir();
     File captureFile;
     do {
       captureFile = new File(captureDir, UUID.randomUUID().toString());
     } while (captureFile.exists());
-    Uri uri = FileProvider.getUriForFile(requireContext(), AUTHORITY, captureFile);
+    Uri uri = FileProvider.getUriForFile(context, AUTHORITY, captureFile);
     viewModel.setPendingCaptureUri(uri);
     captureLauncher.launch(uri);
   }
