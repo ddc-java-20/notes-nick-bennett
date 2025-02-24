@@ -9,6 +9,9 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,17 +21,20 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import dagger.hilt.android.AndroidEntryPoint;
 import edu.cnm.deepdive.notes.databinding.FragmentEditBinding;
 import edu.cnm.deepdive.notes.model.entity.Note;
+import edu.cnm.deepdive.notes.service.ImageFileProvider;
 import edu.cnm.deepdive.notes.viewmodel.NoteViewModel;
 
 @AndroidEntryPoint
 public class EditFragment extends BottomSheetDialogFragment {
 
   private static final String TAG = EditFragment.class.getSimpleName();
+  private static final String AUTHORITY = ImageFileProvider.class.getName().toLowerCase();
 
   private FragmentEditBinding binding;
   private NoteViewModel viewModel;
   private long noteId;
   private Note note;
+  private ActivityResultLauncher<Uri> captureLauncher;
 
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,12 +75,25 @@ public class EditFragment extends BottomSheetDialogFragment {
       binding.image.setVisibility(View.GONE);
       note = new Note();
     }
+    viewModel
+        .getCaptureUri()
+        .observe(getViewLifecycleOwner(), this::handleCaptureUri);
+    captureLauncher = registerForActivityResult(
+        new ActivityResultContracts.TakePicture(), viewModel::confirmCapture);
   }
 
   @Override
   public void onDestroyView() {
     binding = null;
     super.onDestroyView();
+  }
+
+  private void handleCaptureUri(Uri uri) {
+    if (uri != null) {
+      note.setImage(uri);
+      binding.image.setImageURI(uri);
+      binding.image.setVisibility(View.VISIBLE);
+    }
   }
 
   private void setCaptureVisibility() {
@@ -121,6 +140,15 @@ public class EditFragment extends BottomSheetDialogFragment {
     TypedValue typedValue = new TypedValue();
     requireContext().getTheme().resolveAttribute(colorAttr, typedValue, true);
     return typedValue.data;
+  }
+
+  private void capture() {
+    // TODO: 2025-02-24 Using the context, get a reference to the directory where we store captured images.
+    // TODO: 2025-02-24 Ensure that the directory exists.
+    // TODO: 2025-02-24 Generate a random file name for the captured image.
+    // TODO: 2025-02-24 Get a URI for the random file, using the provider infrastructure.
+    // TODO: 2025-02-24 Store the URI in the viewmodel.
+    // TODO: 2025-02-24 Launch the capture launcher.
   }
 
 }
