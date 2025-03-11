@@ -10,7 +10,9 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import dagger.hilt.android.lifecycle.HiltViewModel;
 import edu.cnm.deepdive.notes.model.entity.Note;
+import edu.cnm.deepdive.notes.model.entity.User;
 import edu.cnm.deepdive.notes.service.NoteRepository;
+import edu.cnm.deepdive.notes.service.UserRepository;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import java.util.List;
 import javax.inject.Inject;
@@ -20,19 +22,23 @@ import org.jetbrains.annotations.NotNull;
 public class NoteViewModel extends ViewModel implements DefaultLifecycleObserver {
 
   private final NoteRepository noteRepository;
+  private final UserRepository userRepository;
   private final MutableLiveData<Long> noteId;
   private final LiveData<Note> note;
-  private final MutableLiveData<Uri> captureUri; 
+  private final MutableLiveData<User> user;
+  private final MutableLiveData<Uri> captureUri;
   private final MutableLiveData<Throwable> throwable;
   private final CompositeDisposable pending;
-  
+
   private Uri pendingCaptureUri;
 
   @Inject
-  NoteViewModel(NoteRepository noteRepository) {
+  NoteViewModel(NoteRepository noteRepository, UserRepository userRepository) {
     this.noteRepository = noteRepository;
+    this.userRepository = userRepository;
     noteId = new MutableLiveData<>();
     note = Transformations.switchMap(noteId, noteRepository::get);
+    user = new MutableLiveData<>();
     captureUri = new MutableLiveData<>();
     throwable = new MutableLiveData<>();
     pending = new CompositeDisposable();
@@ -40,11 +46,18 @@ public class NoteViewModel extends ViewModel implements DefaultLifecycleObserver
 
   public void save(Note note) {
     throwable.setValue(null); // Will be invoked from controller on UI thread.
-    noteRepository
-        .save(note)
+    userRepository
+        .getCurrentUser()
+        .map((user) -> {
+          this.user.postValue(user);
+          note.setUserId(user.getId());
+          return note;
+        })
+        .flatMap(noteRepository::save)
         .ignoreElement()
         .subscribe(
-            () -> {},
+            () -> {
+            },
             this::postThrowable,
             pending
         );
@@ -61,7 +74,8 @@ public class NoteViewModel extends ViewModel implements DefaultLifecycleObserver
     noteRepository
         .remove(note)
         .subscribe(
-            () ->{},
+            () -> {
+            },
             this::postThrowable,
             pending
         );
@@ -71,11 +85,11 @@ public class NoteViewModel extends ViewModel implements DefaultLifecycleObserver
     captureUri.setValue(success ? pendingCaptureUri : null);
     pendingCaptureUri = null;
   }
-  
+
   public void clearCaptureUri() {
     captureUri.setValue(null);
   }
-  
+
   public LiveData<Long> getNoteId() {
     return noteId;
   }
@@ -85,7 +99,8 @@ public class NoteViewModel extends ViewModel implements DefaultLifecycleObserver
   }
 
   public LiveData<List<Note>> getNotes() {
-    return noteRepository.getAll();
+    fetchCurrentUser();
+    return Transformations.switchMap(user, noteRepository::getAllForUser);
   }
 
   public LiveData<Uri> getCaptureUri() {
@@ -104,6 +119,17 @@ public class NoteViewModel extends ViewModel implements DefaultLifecycleObserver
   public void onStop(@NotNull LifecycleOwner owner) {
     pending.clear();
     DefaultLifecycleObserver.super.onStop(owner);
+  }
+
+  private void fetchCurrentUser() {
+    throwable.setValue(null);
+    userRepository
+        .getCurrentUser()
+        .subscribe(
+            user::postValue,
+            this::postThrowable,
+            pending
+        );
   }
 
   private void postThrowable(Throwable throwable) {
